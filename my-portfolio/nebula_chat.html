@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nebula Chat</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+            }
+        </script>
+        <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.292.0"
+        }
+    }
+    </script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+
+    <body class="bg-slate-900 text-white transition-colors duration-300">
+        <div id="root"></div>
+
+        <script type="text/babel" data-type="module">
+            import React, { useState, useEffect, useRef } from 'react';
+            import { createRoot } from 'react-dom/client';
+            import {
+                MessageSquare, Send, Search, Phone, Video,
+                MoreHorizontal, Paperclip, Smile, CheckCheck
+            } from 'lucide-react';
+
+            // --- MOCK CONTACTS ---
+            const CONTACTS = [
+                { id: 1, name: "Team Alpha", lastMsg: "Meeting at 3 PM?", time: "2m", avatar: "bg-purple-500", active: true },
+                { id: 2, name: "Sarah Des", lastMsg: "Sent the files.", time: "1h", avatar: "bg-pink-500", active: false },
+                { id: 3, name: "Project X", lastMsg: "Deployed to staging.", time: "3h", avatar: "bg-indigo-500", active: false },
+                { id: 4, name: "Devine E.", lastMsg: "Hey there!", time: "1d", avatar: "bg-emerald-500", active: false },
+            ];
+
+            // --- INITIAL MESSAGES ---
+            const INITIAL_MESSAGES = [
+                { id: 1, sender: "them", text: "Hey! Have you checked the new designs?", time: "10:00 AM" },
+                { id: 2, sender: "me", text: "Yes, they look amazing! Especially the dark mode.", time: "10:02 AM" },
+                { id: 3, sender: "them", text: "Great! Let's ship it by Friday.", time: "10:05 AM" },
+            ];
+
+            function App() {
+                const [messages, setMessages] = useState(INITIAL_MESSAGES);
+                const [inputText, setInputText] = useState("");
+                const [isTyping, setIsTyping] = useState(false);
+                const messagesEndRef = useRef(null);
+
+                const scrollToBottom = () => {
+                    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                };
+
+                useEffect(scrollToBottom, [messages, isTyping]);
+
+                const handleSend = () => {
+                    if (!inputText.trim()) return;
+
+                    const newMsg = {
+                        id: Date.now(),
+                        sender: "me",
+                        text: inputText,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+
+                    setMessages(prev => [...prev, newMsg]);
+                    setInputText("");
+
+                    // Simulate Bot Reply
+                    setIsTyping(true);
+                    setTimeout(() => {
+                        const replyMsg = {
+                            id: Date.now() + 1,
+                            sender: "them",
+                            text: "That sounds like a plan! 🚀",
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        };
+                        setMessages(prev => [...prev, replyMsg]);
+                        setIsTyping(false);
+                    }, 2000);
+                };
+
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter') handleSend();
+                };
+
+                return (
+                    <div className="h-screen flex bg-slate-900 overflow-hidden">
+
+                        {/* Sidebar */ }
+                        <div className="w-80 border-r border-slate-800 bg-slate-900 flex flex-col hidden md:flex">
+                            <div className="p-5 border-b border-slate-800">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <div className="w-8 h-8 bg-gradient-to-tr from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                        <MessageSquare size={ 18 } className="text-white" />
+                                    </div>
+                                    <h1 className="font-bold text-xl tracking-wide">Nebula</h1>
+                                </div>
+                                <div className="relative">
+                                    <Search size={ 16 } className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <input type="text" placeholder="Search..." className="w-full bg-slate-800 text-sm py-2 pl-10 pr-4 rounded-lg outline-none focus:ring-1 focus:ring-cyan-500 text-slate-200" />
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                                { CONTACTS.map(contact => (
+                                    <div key={ contact.id } className={ `p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-colors ${contact.active ? 'bg-slate-800' : 'hover:bg-slate-800/50'}` }>
+                                        <div className={ `w-10 h-10 rounded-full ${contact.avatar} flex items-center justify-center text-white font-bold text-sm` }>
+                                            { contact.name.charAt(0) }
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <h4 className="font-semibold text-sm truncate">{ contact.name }</h4>
+                                                <span className="text-xs text-slate-500">{ contact.time }</span>
+                                            </div>
+                                            <p className="text-xs text-slate-400 truncate">{ contact.lastMsg }</p>
+                                        </div>
+                                    </div>
+                                )) }
+                            </div>
+                        </div>
+
+                        {/* Chat Area */ }
+                        <div className="flex-1 flex flex-col bg-slate-950 relative">
+
+                            {/* Header */ }
+                            <header className="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50 backdrop-blur-sm z-10">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">TA</div>
+                                    <div>
+                                        <h3 className="font-bold text-sm">Team Alpha</h3>
+                                        <p className="text-xs text-green-400 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 text-slate-400">
+                                    <Phone size={ 20 } className="hover:text-white cursor-pointer" />
+                                    <Video size={ 20 } className="hover:text-white cursor-pointer" />
+                                    <MoreHorizontal size={ 20 } className="hover:text-white cursor-pointer" />
+                                </div>
+                            </header>
+
+                            {/* Messages */ }
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                { messages.map((msg) => (
+                                    <div key={ msg.id } className={ `flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}` }>
+                                        { msg.sender === 'them' && <div className="w-8 h-8 rounded-full bg-purple-500 flex-shrink-0 mr-2 self-end mb-1"></div> }
+                                        <div className={ `max-w-[70%] rounded-2xl px-5 py-3 shadow-sm relative group ${msg.sender === 'me'
+                                            ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-tr-none'
+                                            : 'bg-slate-800 text-slate-100 rounded-tl-none'
+                                            }` }>
+                                            <p className="text-sm leading-relaxed">{ msg.text }</p>
+                                            <span className={ `text-[10px] absolute bottom-1 ${msg.sender === 'me' ? 'left-2 text-blue-100' : 'right-2 text-slate-400'} opacity-0 group-hover:opacity-100 transition-opacity` }>
+                                                { msg.time }
+                                            </span>
+                                        </div>
+                                    </div>
+                                )) }
+
+                                { isTyping && (
+                                    <div className="flex justify-start animate-pulse">
+                                        <div className="w-8 h-8 rounded-full bg-purple-500 flex-shrink-0 mr-2 self-end mb-1"></div>
+                                        <div className="bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-none flex gap-1 items-center h-10">
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-75"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-150"></span>
+                                        </div>
+                                    </div>
+                                ) }
+                                <div ref={ messagesEndRef } />
+                            </div>
+
+                            {/* Input Area */ }
+                            <div className="p-4 bg-slate-900 border-t border-slate-800">
+                                <div className="max-w-4xl mx-auto bg-slate-800 rounded-xl p-1.5 flex items-center gap-2">
+                                    <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+                                        <Paperclip size={ 20 } />
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={ inputText }
+                                        onChange={ (e) => setInputText(e.target.value) }
+                                        onKeyPress={ handleKeyPress }
+                                        placeholder="Type your message..."
+                                        className="flex-1 bg-transparent outline-none text-sm text-white placeholder-slate-500 px-2"
+                                    />
+                                    <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+                                        <Smile size={ 20 } />
+                                    </button>
+                                    <button
+                                        onClick={ handleSend }
+                                        className={ `p-2 rounded-lg transition-all ${inputText.trim() ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}` }
+                                    >
+                                        <Send size={ 18 } />
+                                    </button>
+                                </div>
+                                <p className="text-center text-xs text-slate-600 mt-3">Press Enter to send</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const container = document.getElementById('root');
+            const root = createRoot(container);
+            root.render(<App />);
+        </script>
+    </body>
+
+</html>

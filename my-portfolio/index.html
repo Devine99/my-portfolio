@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- SEO Meta Tags -->
+        <title>Devine Enukorah | Full Stack Developer Portfolio</title>
+        <meta name="description"
+            content="Portfolio of Devine Enukorah, a Full Stack Developer specializing in React, TypeScript, Node.js, and building scalable web applications. View my projects and contact me.">
+        <meta name="keywords"
+            content="Devine Enukorah, Full Stack Developer, React Developer, Web Development Portfolio, Software Engineer, Frontend, Backend">
+        <meta name="author" content="Devine Enukorah">
+        <meta name="robots" content="index, follow">
+
+        <!-- Open Graph / Facebook / LinkedIn -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://devine99.github.io/">
+        <meta property="og:title" content="Devine Enukorah | Full Stack Developer Portfolio">
+        <meta property="og:description"
+            content="Portfolio of Devine Enukorah, a Full Stack Developer specializing in React, TypeScript, Node.js, and scalable web apps.">
+        <meta property="og:image" content="https://devine99.github.io/images/Bless.png">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://devine99.github.io/">
+        <meta property="twitter:title" content="Devine Enukorah | Full Stack Developer Portfolio">
+        <meta property="twitter:description"
+            content="Portfolio of Devine Enukorah, a Full Stack Developer specializing in React, TypeScript, Node.js, and scalable web apps.">
+        <meta property="twitter:image" content="https://devine99.github.io/images/Bless.png">
+
+        <!-- 1. Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        animation: {
+                            blob: "blob 7s infinite",
+                        },
+                        keyframes: {
+                            blob: {
+                                "0%": { transform: "translate(0px, 0px) scale(1)" },
+                                "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                                "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                                "100%": { transform: "translate(0px, 0px) scale(1)" }
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+
+        <!-- 2. Import Map -->
+        <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+        }
+    }
+    </script>
+
+        <!-- 3. Babel -->
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+        <style>
+            html {
+                scroll-behavior: smooth;
+            }
+
+            *:focus {
+                outline: 2px solid transparent;
+                outline-offset: 2px;
+            }
+        </style>
+    </head>
+
+    <body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+
+        <div id="root"></div>
+
+        <!-- 4. React Application Code -->
+        <script type="text/babel" data-type="module">
+            import React, { useState, useEffect, memo } from 'react';
+            import { createRoot } from 'react-dom/client';
+            import {
+                Github, Linkedin, Mail, ExternalLink, Code2, Terminal,
+                Cpu, Globe, Moon, Sun, Menu, X, ChevronDown,
+                Briefcase, User, Copy, Check, ArrowUp
+            } from 'lucide-react';
+
+            // --- CONSTANTS & DATA ---
+            const EMAIL = "enukorahdevine@gmail.com";
+            const CURRENT_YEAR = new Date().getFullYear();
+
+            const NAV_LINKS = [
+                { name: 'About', href: '#about' },
+                { name: 'Skills', href: '#skills' },
+                { name: 'Projects', href: '#projects' },
+                { name: 'Contact', href: '#contact' },
+            ];
+
+            const SKILLS = [
+                { category: "Frontend", items: ["React", "TypeScript", "Tailwind CSS", "Next.js", "Framer Motion"] },
+                { category: "Backend", items: ["Node.js", "Python", "PostgreSQL", "GraphQL", "REST APIs"] },
+                { category: "Tools & DevOps", items: ["Git & GitHub", "Docker", "AWS", "VS Code", "Figma"] },
+            ];
+
+            const PROJECTS = [
+                {
+                    title: "E-Commerce Dashboard",
+                    description: "A full-featured analytics dashboard for online retailers. Visualizes sales data, tracks inventory in real-time, and manages customer orders.",
+                    tags: ["React", "D3.js", "Node.js", "MongoDB"],
+                    githubLink: "https://github.com/Devine99",
+                    demoLink: "./ecommerce_dashboard.html",
+                    featured: true,
+                },
+                {
+                    title: "TaskMaster AI",
+                    description: "Productivity application that uses Natural Language Processing to automatically categorize and prioritize user tasks.",
+                    tags: ["Python", "FastAPI", "OpenAI API", "PostgreSQL"],
+                    githubLink: "https://github.com/Devine99",
+                    demoLink: "./taskmaster.html",
+                    featured: true,
+                },
+                {
+                    title: "Nebula Chat",
+                    description: "Real-time messaging platform featuring end-to-end encryption and seamless file sharing capabilities.",
+                    tags: ["TypeScript", "Socket.io", "Redis", "React"],
+                    githubLink: "https://github.com/Devine99",
+                    demoLink: "./nebula_chat.html",
+                    featured: false,
+                }
+            ];
+
+            const SOCIALS = [
+                { icon: Github, href: "https://github.com/Devine99", label: "GitHub" },
+                { icon: Linkedin, href: "https://www.linkedin.com/in/enukorah1", label: "LinkedIn" },
+                { icon: Mail, href: `mailto:${EMAIL}`, label: "Email" },
+            ];
+
+            // --- COMPONENTS ---
+
+            const SectionTitle = memo(({ children, id }) => (
+                <div className="flex flex-col items-center mb-12 md:mb-16">
+                    <h2 id={ id } className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 text-center">
+                        { children }
+                    </h2>
+                    <div className="w-16 h-1.5 bg-indigo-600 rounded-full"></div>
+                </div>
+            ));
+
+            const ProjectCard = memo(({ project }) => (
+                <div className="group relative bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 flex flex-col h-full">
+                    <div className="h-8 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center px-4 space-x-2">
+                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                        <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+                    </div>
+
+                    <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                { project.title }
+                            </h3>
+                            <div className="flex gap-2">
+                                <a href={ project.githubLink } target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors" aria-label="View Source Code">
+                                    <Github size={ 20 } />
+                                </a>
+                                <a href={ project.demoLink } target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors" aria-label="View Live Demo">
+                                    <ExternalLink size={ 20 } />
+                                </a>
+                            </div>
+                        </div>
+
+                        <p className="text-slate-600 dark:text-slate-300 mb-6 flex-1 leading-relaxed">
+                            { project.description }
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mt-auto">
+                            { project.tags.map((tag) => (
+                                <span key={ tag } className="px-3 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                    { tag }
+                                </span>
+                            )) }
+                        </div>
+                    </div>
+                </div>
+            ));
+
+            class ErrorBoundary extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = { hasError: false };
+                }
+                static getDerivedStateFromError(error) { return { hasError: true }; }
+                render() {
+                    if (this.state.hasError) {
+                        return <div className="text-center p-10 text-red-500">Something went wrong. Please refresh the page.</div>;
+                    }
+                    return this.props.children;
+                }
+            }
+
+            // --- MAIN APP ---
+            function App() {
+                const [darkMode, setDarkMode] = useState(false);
+                const [isMenuOpen, setIsMenuOpen] = useState(false);
+                const [activeSection, setActiveSection] = useState('');
+                const [isImageLoaded, setIsImageLoaded] = useState(false);
+                const [imageError, setIsImageError] = useState(false);
+                const [showBackToTop, setShowBackToTop] = useState(false);
+                const [emailCopied, setEmailCopied] = useState(false);
+
+                useEffect(() => {
+                    let ticking = false;
+                    const handleScroll = () => {
+                        if (!ticking) {
+                            window.requestAnimationFrame(() => {
+                                if (window.scrollY > 300) setShowBackToTop(true);
+                                else setShowBackToTop(false);
+
+                                const sections = NAV_LINKS.map(link => link.href.substring(1));
+                                const scrollPosition = window.scrollY + 200;
+                                for (const section of sections) {
+                                    const element = document.getElementById(section);
+                                    if (element && element.offsetTop <= scrollPosition && (element.offsetTop + element.offsetHeight) > scrollPosition) {
+                                        setActiveSection(section);
+                                        break;
+                                    }
+                                }
+                                ticking = false;
+                            });
+                            ticking = true;
+                        }
+                    };
+                    window.addEventListener('scroll', handleScroll);
+                    return () => window.removeEventListener('scroll', handleScroll);
+                }, []);
+
+                useEffect(() => {
+                    if (darkMode) document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                }, [darkMode]);
+
+                const handleNavClick = (e, href) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    const element = document.querySelector(href);
+                    if (element) {
+                        window.scrollTo({ top: element.offsetTop, behavior: "smooth" });
+                    }
+                };
+
+                const copyEmail = () => {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = EMAIL;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-9999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        setEmailCopied(true);
+                        setTimeout(() => setEmailCopied(false), 2000);
+                    } catch (err) { console.error('Copy failed', err); }
+                    document.body.removeChild(textArea);
+                };
+
+                const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                return (
+                    <ErrorBoundary>
+                        <div className={ `min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-slate-900' : 'bg-slate-50'}` }>
+
+                            {/* Navigation */ }
+                            <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+                                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                                    <div className="flex justify-between items-center h-16">
+                                        <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={ scrollToTop }>
+                                            <div className="bg-indigo-600 p-1.5 rounded-lg">
+                                                <Code2 className="text-white w-6 h-6" />
+                                            </div>
+                                            <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Devine's Portfolio</span>
+                                        </div>
+
+                                        <div className="hidden md:flex items-center space-x-8">
+                                            { NAV_LINKS.map((link) => (
+                                                <a key={ link.name } href={ link.href } onClick={ (e) => handleNavClick(e, link.href) }
+                                                    className={ `text-sm font-medium transition-colors duration-200 ${activeSection === link.href.substring(1)
+                                                        ? 'text-indigo-600 dark:text-indigo-400'
+                                                        : 'text-slate-600 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-white'
+                                                        }` }>
+                                                    { link.name }
+                                                </a>
+                                            )) }
+                                            <button onClick={ () => setDarkMode(!darkMode) } aria-label="Toggle Dark Mode" className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                { darkMode ? <Sun size={ 20 } /> : <Moon size={ 20 } /> }
+                                            </button>
+                                        </div>
+
+                                        <div className="flex md:hidden items-center gap-4">
+                                            <button onClick={ () => setDarkMode(!darkMode) } aria-label="Toggle Dark Mode" className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                { darkMode ? <Sun size={ 20 } /> : <Moon size={ 20 } /> }
+                                            </button>
+                                            <button onClick={ () => setIsMenuOpen(!isMenuOpen) } aria-label="Toggle Menu" className="text-slate-600 dark:text-slate-300 p-2">
+                                                { isMenuOpen ? <X size={ 24 } /> : <Menu size={ 24 } /> }
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                { isMenuOpen && (
+                                    <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                                        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                                            { NAV_LINKS.map((link) => (
+                                                <a key={ link.name } href={ link.href } onClick={ (e) => handleNavClick(e, link.href) }
+                                                    className="block px-3 py-3 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800">
+                                                    { link.name }
+                                                </a>
+                                            )) }
+                                        </div>
+                                    </div>
+                                ) }
+                            </nav>
+
+                            {/* Hero */ }
+                            <section className="pt-32 pb-16 md:pt-48 md:pb-32 px-4 max-w-7xl mx-auto">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+                                    <div className="flex-1 text-center md:text-left space-y-6">
+                                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-4">
+                                            <span className="flex h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 mr-2"></span>
+                                            Available for hire
+                                        </div>
+                                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                            Building digital <br />
+                                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">experiences</span>
+                                            { " " }that matter.
+                                        </h1>
+                                        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+                                            Hi, I'm Devine Enukorah. A passionate Full Stack Developer crafting robust and scalable web applications.
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+                                            <a href="#projects" className="px-8 py-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg transition-all hover:-translate-y-0.5" onClick={ (e) => handleNavClick(e, '#projects') }>View My Work</a>
+                                            <a href="#contact" className="px-8 py-4 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all" onClick={ (e) => handleNavClick(e, '#contact') }>Contact Me</a>
+                                        </div>
+                                        <div className="pt-8 flex items-center justify-center md:justify-start gap-6">
+                                            { SOCIALS.map((social) => (
+                                                <a key={ social.label } href={ social.href } target="_blank" rel="noopener noreferrer" aria-label={ social.label } className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors transform hover:scale-110 p-2">
+                                                    <social.icon size={ 24 } />
+                                                </a>
+                                            )) }
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 relative w-full max-w-md md:max-w-full">
+                                        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-20"></div>
+                                        <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-20" style={ { animationDelay: '2s' } }></div>
+                                        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-20" style={ { animationDelay: '4s' } }></div>
+                                        <div className="relative bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+                                            <div className="space-y-6 font-mono text-sm">
+                                                <div className="flex items-center gap-2 text-slate-400 border-b border-slate-200 dark:border-slate-700 pb-4">
+                                                    <Terminal size={ 16 } /> <span>developer_profile.json</span>
+                                                </div>
+                                                <div className="space-y-3 text-slate-600 dark:text-slate-300">
+                                                    <p><span className="text-purple-600 dark:text-purple-400">const</span> <span className="text-indigo-600 dark:text-indigo-400">developer</span> = { '{' }</p>
+                                                    <p className="pl-4">name: <span className="text-green-600 dark:text-green-400">"Devine Enukorah"</span>,</p>
+                                                    <p className="pl-4">status: <span className="text-amber-600 dark:text-amber-400">"Building things"</span></p>
+                                                    <p>{ '};' }</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
+                                    <ChevronDown className="text-slate-400" size={ 24 } />
+                                </div>
+                            </section>
+
+                            {/* About */ }
+                            <section id="about" className="py-20 bg-white dark:bg-slate-800/50 scroll-mt-28">
+                                <div className="max-w-7xl mx-auto px-4">
+                                    <SectionTitle id="about-title">About Me</SectionTitle>
+                                    <div className="grid md:grid-cols-3 gap-12 items-center">
+                                        <div className="md:col-span-1">
+                                            <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-700 rotate-3 hover:rotate-0 transition-all duration-300 shadow-xl">
+                                                <div className="absolute inset-0 flex items-center justify-center text-slate-400"><User size={ 64 } /></div>
+                                                <img src="./images/Bless.png" alt="Devine's Profile Picture" className={ `absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}` } onLoad={ () => setIsImageLoaded(true) } onError={ imageError ? null : () => setIsImageError(true) } />
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-2 space-y-6 text-lg text-slate-600 dark:text-slate-300">
+                                            <p>I started my coding journey during standard "100 Days of Code" challenges, but what began as a curiosity quickly turned into a career obsession for programming.</p>
+                                            <div className="grid grid-cols-2 gap-6 pt-4">
+                                                <div><h4 className="font-bold text-slate-900 dark:text-white mb-2">Experience</h4><p className="text-sm">2+ Years Development</p></div>
+                                                <div><h4 className="font-bold text-slate-900 dark:text-white mb-2">Location</h4><p className="text-sm">Remote / Hybrid</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Skills */ }
+                            <section id="skills" className="py-20 bg-slate-50 dark:bg-slate-900 scroll-mt-28">
+                                <div className="max-w-7xl mx-auto px-4">
+                                    <SectionTitle id="skills-title">Technical Skills</SectionTitle>
+                                    <div className="grid md:grid-cols-3 gap-8">
+                                        { SKILLS.map((skillGroup, idx) => (
+                                            <div key={ skillGroup.category } className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                                                <div className="flex items-center gap-3 mb-6">
+                                                    <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+                                                        { idx === 0 ? <Globe size={ 24 } /> : idx === 1 ? <Cpu size={ 24 } /> : <Briefcase size={ 24 } /> }
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">{ skillGroup.category }</h3>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    { skillGroup.items.map((skill) => (
+                                                        <span key={ skill } className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md text-sm font-medium">{ skill }</span>
+                                                    )) }
+                                                </div>
+                                            </div>
+                                        )) }
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Projects */ }
+                            <section id="projects" className="py-20 bg-white dark:bg-slate-800/50 scroll-mt-28">
+                                <div className="max-w-7xl mx-auto px-4">
+                                    <SectionTitle id="projects-title">Featured Projects</SectionTitle>
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        { PROJECTS.map((project, index) => <ProjectCard key={ index } project={ project } />) }
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Contact */ }
+                            <section id="contact" className="py-20 bg-slate-900 text-white relative overflow-hidden scroll-mt-28">
+                                <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
+                                    <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to start a project?</h2>
+                                    <p className="text-slate-300 text-lg mb-10 max-w-2xl mx-auto">I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                        <a href={ `mailto:${EMAIL}` } className="inline-flex items-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-full text-lg font-semibold transition-all hover:scale-105 shadow-lg"><Mail size={ 20 } /> Say Hello</a>
+                                        <button onClick={ copyEmail } className="inline-flex items-center gap-2 px-8 py-4 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-full text-lg font-semibold transition-all hover:scale-105 text-slate-300">
+                                            { emailCopied ? <Check size={ 20 } className="text-green-400" /> : <Copy size={ 20 } /> } { emailCopied ? "Copied!" : "Copy Email" }
+                                        </button>
+                                    </div>
+                                    <div className="mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-center items-center gap-4 text-slate-400 text-sm">
+                                        <p>© { CURRENT_YEAR } Devine's Portfolio❤️. Built with React & Tailwind.</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <button onClick={ scrollToTop } className={ `fixed bottom-8 right-8 p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-all duration-300 z-40 ${showBackToTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}` }><ArrowUp size={ 24 } /></button>
+                        </div>
+                    </ErrorBoundary>
+                );
+            }
+
+            // --- Mount Application ---
+            const container = document.getElementById('root');
+            const root = createRoot(container);
+            root.render(<App />);
+        </script>
+    </body>
+
+</html>

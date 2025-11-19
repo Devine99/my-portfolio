@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>E-Commerce Analytics Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+            }
+        </script>
+        <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.292.0"
+        }
+    }
+    </script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <style>
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+
+            .dark ::-webkit-scrollbar-thumb {
+                background: #475569;
+            }
+        </style>
+    </head>
+
+    <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
+        <div id="root"></div>
+
+        <script type="text/babel" data-type="module">
+            import React, { useState, useEffect } from 'react';
+            import { createRoot } from 'react-dom/client';
+            import {
+                LayoutDashboard, ShoppingBag, Users, DollarSign,
+                TrendingUp, TrendingDown, Search, Bell, Moon, Sun,
+                Menu, X, Package, ArrowUpRight
+            } from 'lucide-react';
+
+            // --- MOCK DATA ---
+            const RECENT_ORDERS = [
+                { id: "#ORD-7235", product: "Nike Air Max", customer: "Alex Doe", date: "2 mins ago", amount: "$129.00", status: "Completed" },
+                { id: "#ORD-7234", product: "Adidas Ultraboost", customer: "Jane Smith", date: "15 mins ago", amount: "$180.00", status: "Pending" },
+                { id: "#ORD-7233", product: "Puma Hoodie", customer: "Mike Johnson", date: "1 hour ago", amount: "$45.00", status: "Completed" },
+                { id: "#ORD-7232", product: "Apple Watch", customer: "Sarah Connor", date: "2 hours ago", amount: "$399.00", status: "Processing" },
+                { id: "#ORD-7231", product: "Sony Headphones", customer: "Chris Evans", date: "3 hours ago", amount: "$150.00", status: "Cancelled" },
+            ];
+
+            const STATS = [
+                { title: "Total Revenue", value: "$45,231.89", change: "+20.1%", trend: "up", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
+                { title: "Active Orders", value: "+573", change: "+12.5%", trend: "up", icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
+                { title: "New Customers", value: "1,205", change: "-2.3%", trend: "down", icon: Users, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30" },
+                { title: "Total Products", value: "892", change: "+5.4%", trend: "up", icon: Package, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30" },
+            ];
+
+            // --- COMPONENTS ---
+
+            const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
+                <button
+                    onClick={ onClick }
+                    className={ `flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'}` }
+                >
+                    <Icon size={ 20 } />
+                    <span className="font-medium">{ label }</span>
+                </button>
+            );
+
+            const StatCard = ({ stat }) => (
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ stat.title }</p>
+                            <h3 className="text-2xl font-bold mt-2">{ stat.value }</h3>
+                        </div>
+                        <div className={ `p-3 rounded-lg ${stat.bg} ${stat.color}` }>
+                            <stat.icon size={ 24 } />
+                        </div>
+                    </div>
+                    <div className="flex items-center mt-4 gap-2">
+                        <span className={ `flex items-center text-xs font-medium ${stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'}` }>
+                            { stat.trend === 'up' ? <TrendingUp size={ 16 } className="mr-1" /> : <TrendingDown size={ 16 } className="mr-1" /> }
+                            { stat.change }
+                        </span>
+                        <span className="text-xs text-slate-400">from last month</span>
+                    </div>
+                </div>
+            );
+
+            const SimpleLineChart = () => (
+                <div className="relative h-64 w-full flex items-end gap-2 pt-8">
+                    {/* Mock Bars for Visualization */ }
+                    { [40, 65, 45, 70, 55, 80, 60, 85, 90, 75, 60, 95].map((h, i) => (
+                        <div key={ i } className="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative group">
+                            <div
+                                className="absolute bottom-0 w-full bg-indigo-500 rounded-t-sm transition-all duration-500 hover:bg-indigo-400"
+                                style={ { height: `${h}%` } }
+                            >
+                                <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded transition-opacity">
+                                    ${ h * 100 }
+                                </div>
+                            </div>
+                        </div>
+                    )) }
+                </div>
+            );
+
+            function App() {
+                const [darkMode, setDarkMode] = useState(false);
+                const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+                useEffect(() => {
+                    if (darkMode) document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                }, [darkMode]);
+
+                return (
+                    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
+
+                        {/* Sidebar */ }
+                        <aside className={ `${isSidebarOpen ? 'w-64' : 'w-0'} fixed md:relative z-30 h-screen bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 overflow-hidden flex flex-col` }>
+                            <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                                <div className="bg-indigo-600 p-2 rounded-lg">
+                                    <LayoutDashboard className="text-white" size={ 24 } />
+                                </div>
+                                <h1 className="font-bold text-xl tracking-tight">DashStack</h1>
+                            </div>
+
+                            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                                <SidebarItem icon={ LayoutDashboard } label="Dashboard" active={ true } onClick={ () => { } } />
+                                <SidebarItem icon={ ShoppingBag } label="Orders" active={ false } onClick={ () => { } } />
+                                <SidebarItem icon={ Users } label="Customers" active={ false } onClick={ () => { } } />
+                                <SidebarItem icon={ Package } label="Products" active={ false } onClick={ () => { } } />
+                                <SidebarItem icon={ DollarSign } label="Finance" active={ false } onClick={ () => { } } />
+                            </nav>
+
+                            <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-4 text-white">
+                                    <p className="text-sm font-medium mb-1">Pro Plan</p>
+                                    <p className="text-xs opacity-80 mb-3">Get access to all features</p>
+                                    <button className="w-full py-2 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-semibold transition-colors">Upgrade</button>
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* Main Content */ }
+                        <main className="flex-1 flex flex-col h-screen overflow-hidden">
+
+                            {/* Topbar */ }
+                            <header className="h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 md:px-6 z-20">
+                                <div className="flex items-center gap-4">
+                                    <button onClick={ () => setIsSidebarOpen(!isSidebarOpen) } className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                        <Menu size={ 20 } />
+                                    </button>
+                                    <div className="relative hidden md:block">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={ 18 } />
+                                        <input type="text" placeholder="Search analytics..." className="pl-10 pr-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64 text-sm" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <button onClick={ () => setDarkMode(!darkMode) } className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                        { darkMode ? <Sun size={ 20 } /> : <Moon size={ 20 } /> }
+                                    </button>
+                                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors relative">
+                                        <Bell size={ 20 } />
+                                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
+                                    </button>
+                                    <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-sm">
+                                        DE
+                                    </div>
+                                </div>
+                            </header>
+
+                            {/* Content Scroll Area */ }
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                                <div className="max-w-7xl mx-auto space-y-8">
+
+                                    {/* Header */ }
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <div>
+                                            <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+                                            <p className="text-slate-500 dark:text-slate-400">Welcome back, Devine! Here's what's happening today.</p>
+                                        </div>
+                                        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
+                                            <ArrowUpRight size={ 18 } /> Generate Report
+                                        </button>
+                                    </div>
+
+                                    {/* Stats Grid */ }
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        { STATS.map((stat, idx) => <StatCard key={ idx } stat={ stat } />) }
+                                    </div>
+
+                                    {/* Charts & Recent Orders */ }
+                                    <div className="grid lg:grid-cols-3 gap-8">
+
+                                        {/* Chart Section */ }
+                                        <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <h3 className="font-bold text-lg">Revenue Analytics</h3>
+                                                <select className="bg-slate-100 dark:bg-slate-700 border-none text-sm rounded-lg px-3 py-1 focus:ring-0">
+                                                    <option>This Year</option>
+                                                    <option>Last Year</option>
+                                                </select>
+                                            </div>
+                                            <SimpleLineChart />
+                                            <div className="flex justify-between text-xs text-slate-400 mt-4 px-2">
+                                                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Recent Orders */ }
+                                        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col">
+                                            <h3 className="font-bold text-lg mb-6">Recent Orders</h3>
+                                            <div className="flex-1 overflow-y-auto space-y-4">
+                                                { RECENT_ORDERS.map((order) => (
+                                                    <div key={ order.id } className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors cursor-pointer group">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                                                <ShoppingBag size={ 18 } />
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-sm">{ order.product }</p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400">{ order.customer }</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="font-bold text-sm text-indigo-600 dark:text-indigo-400">{ order.amount }</p>
+                                                            <span className={ `text-[10px] px-2 py-0.5 rounded-full ${order.status === 'Completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                                                order.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                                                    order.status === 'Processing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                                                        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                                }` }>
+                                                                { order.status }
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )) }
+                                            </div>
+                                            <button className="w-full mt-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">View All Transactions</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                );
+            }
+
+            const container = document.getElementById('root');
+            const root = createRoot(container);
+            root.render(<App />);
+        </script>
+    </body>
+
+</html>

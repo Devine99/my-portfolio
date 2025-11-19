@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TaskMaster AI</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+            }
+        </script>
+        <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "lucide-react": "https://esm.sh/lucide-react@0.344.0"
+        }
+    }
+    </script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <style>
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+
+    <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
+        <div id="root"></div>
+
+        <script type="text/babel" data-type="module">
+            import React, { useState, useEffect, useRef } from 'react';
+            import { createRoot } from 'react-dom/client';
+            import {
+                Bot, Plus, Calendar, Tag, MoreVertical,
+                CheckCircle, Clock, AlertCircle, Sparkles,
+                Sun, Moon, X
+            } from 'lucide-react';
+
+            function App() {
+                const [darkMode, setDarkMode] = useState(false);
+                const [inputValue, setInputValue] = useState("");
+                const [isProcessing, setIsProcessing] = useState(false);
+                const [tasks, setTasks] = useState([
+                    { id: 1, title: "Fix login bug in production", category: "Work", priority: "High", status: "To Do" },
+                    { id: 2, title: "Buy groceries for the week", category: "Personal", priority: "Medium", status: "In Progress" },
+                    { id: 3, title: "Schedule dentist appointment", category: "Health", priority: "Low", status: "Done" },
+                ]);
+
+                useEffect(() => {
+                    if (darkMode) document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                }, [darkMode]);
+
+                // --- SIMULATED AI LOGIC ---
+                const handleAddTask = () => {
+                    if (!inputValue.trim()) return;
+
+                    setIsProcessing(true);
+
+                    // Mock "AI" delay
+                    setTimeout(() => {
+                        // Simple keyword-based categorization
+                        let category = "General";
+                        let priority = "Medium";
+                        const text = inputValue.toLowerCase();
+
+                        if (text.includes("bug") || text.includes("code") || text.includes("server") || text.includes("deploy")) {
+                            category = "Work";
+                            priority = "High";
+                        } else if (text.includes("buy") || text.includes("shop") || text.includes("grocer")) {
+                            category = "Personal";
+                        } else if (text.includes("doctor") || text.includes("gym") || text.includes("health")) {
+                            category = "Health";
+                            priority = "High";
+                        } else if (text.includes("email") || text.includes("call") || text.includes("meet")) {
+                            category = "Communication";
+                        }
+
+                        const newTask = {
+                            id: Date.now(),
+                            title: inputValue,
+                            category,
+                            priority,
+                            status: "To Do"
+                        };
+
+                        setTasks(prev => [newTask, ...prev]);
+                        setInputValue("");
+                        setIsProcessing(false);
+                    }, 1200); // 1.2s fake delay
+                };
+
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Enter') handleAddTask();
+                };
+
+                const deleteTask = (id) => {
+                    setTasks(tasks.filter(t => t.id !== id));
+                };
+
+                const TaskColumn = ({ title, status, icon: Icon, color }) => (
+                    <div className="flex-1 min-w-[300px] bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-4 opacity-70">
+                            <Icon size={ 18 } className={ color } />
+                            <h3 className="font-bold text-sm uppercase tracking-wide">{ title }</h3>
+                            <span className="ml-auto bg-slate-200 dark:bg-slate-700 text-xs px-2 py-0.5 rounded-full">
+                                { tasks.filter(t => t.status === status).length }
+                            </span>
+                        </div>
+                        <div className="space-y-3">
+                            { tasks.filter(t => t.status === status).map(task => (
+                                <div key={ task.id } className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group animate-[fadeIn_0.3s_ease-out]">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={ `text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider ${task.category === 'Work' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                                            task.category === 'Personal' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                                                task.category === 'Health' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                                                    'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                                            }` }>
+                                            { task.category }
+                                        </span>
+                                        <button onClick={ () => deleteTask(task.id) } className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <X size={ 16 } />
+                                        </button>
+                                    </div>
+                                    <p className="font-medium mb-3">{ task.title }</p>
+                                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
+                                        <div className="flex items-center gap-1">
+                                            <div className={ `w-2 h-2 rounded-full ${task.priority === 'High' ? 'bg-red-500' :
+                                                task.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
+                                                }` }></div>
+                                            { task.priority } Priority
+                                        </div>
+                                        <div className="flex gap-2">
+                                            { status !== 'To Do' && <button onClick={ () => setTasks(tasks.map(t => t.id === task.id ? { ...t, status: 'To Do' } : t)) } className="hover:text-indigo-500">←</button> }
+                                            { status !== 'Done' && <button onClick={ () => setTasks(tasks.map(t => t.id === task.id ? { ...t, status: status === 'To Do' ? 'In Progress' : 'Done' } : t)) } className="hover:text-indigo-500">→</button> }
+                                        </div>
+                                    </div>
+                                </div>
+                            )) }
+                            { tasks.filter(t => t.status === status).length === 0 && (
+                                <div className="text-center py-8 text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+                                    No tasks
+                                </div>
+                            ) }
+                        </div>
+                    </div>
+                );
+
+                return (
+                    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col">
+                        <header className="flex justify-between items-center mb-10">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-600 rounded-lg">
+                                    <Sparkles className="text-white" size={ 24 } />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold">TaskMaster AI</h1>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Smart NLP Categorization</p>
+                                </div>
+                            </div>
+                            <button onClick={ () => setDarkMode(!darkMode) } className="p-2 rounded-lg bg-slate-200 dark:bg-slate-800">
+                                { darkMode ? <Sun size={ 20 } /> : <Moon size={ 20 } /> }
+                            </button>
+                        </header>
+
+                        {/* AI Input Area */ }
+                        <div className="bg-white dark:bg-slate-800 p-1 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 mb-12 max-w-3xl mx-auto w-full relative z-10">
+                            <div className="relative flex items-center">
+                                <div className="pl-4 text-slate-400">
+                                    <Bot size={ 24 } />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={ inputValue }
+                                    onChange={ (e) => setInputValue(e.target.value) }
+                                    onKeyDown={ handleKeyDown }
+                                    placeholder="Describe your task (e.g., 'Fix header bug' or 'Buy milk')..."
+                                    className="w-full p-4 bg-transparent outline-none text-lg"
+                                    disabled={ isProcessing }
+                                />
+                                <button
+                                    onClick={ handleAddTask }
+                                    disabled={ isProcessing || !inputValue.trim() }
+                                    className={ `mr-1 px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${isProcessing
+                                        ? 'bg-slate-100 text-slate-400 cursor-wait'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg'
+                                        }` }
+                                >
+                                    { isProcessing ? (
+                                        <>Processing...</>
+                                    ) : (
+                                        <><Plus size={ 20 } /> Add Task</>
+                                    ) }
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Board */ }
+                        <div className="flex-1 overflow-x-auto">
+                            <div className="flex gap-6 min-w-full pb-4">
+                                <TaskColumn title="To Do" status="To Do" icon={ AlertCircle } color="text-slate-500" />
+                                <TaskColumn title="In Progress" status="In Progress" icon={ Clock } color="text-blue-500" />
+                                <TaskColumn title="Done" status="Done" icon={ CheckCircle } color="text-green-500" />
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const container = document.getElementById('root');
+            const root = createRoot(container);
+            root.render(<App />);
+        </script>
+    </body>
+
+</html>
